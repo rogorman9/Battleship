@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Battleship</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="socket.io.js"></script>
+    <script>
+    var socket = io();
+    
+    socket.on('updategames', function (games) {
+        $('#games').empty();
+        $.each(games, function (key, value) {
+        	  $('#games').append('<div><a href="#" onclick="joinGame(\'' + value + '\')">' + value + '</a></div>');
+        });
+    });
+    
+    $('form').submit(function () {
+        socket.emit('creategame', socket.name);
+        return false;
+     });
+    
+    function joinGame (game) {
+    	socket.emit('joingame', game);
+    }
+    
+    </script>
+  </head>
+  
+  <body align="center">
+    <h1>Battleship Game Lobby</h1>
+    <br>
+    <form action="/game">
+    <input type="submit" value="Create New Game">
+    </form>
+    <br>
+    <div id="games"></div>
+  </body>
+</html>
