@@ -3,22 +3,28 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index');
+	res.render('index');
 });
 
-/* GET game page. */
-router.get('/game', function(req, res, next) {
-  res.render('game', { title: 'Battleship' });
+/* POST game page. */
+router.post('/game', function(req, res, next) {
+	var game = req.body.game;
+	if (req.app.locals.games[game] >= 2) {
+		res.redirect('/lobby');
+	} else {
+		res.render('game', {
+			name: req.session.name,
+			game: game
+		});
+	}
 });
 
-/* GET users listing. */
-router.get('/users', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
-/* GET lobby page. */
+/* POST lobby page. */
 router.post('/lobby', function (req, res, next) {
-	res.render('lobby');
+	req.session.name = req.body.name;
+	res.render('lobby', {
+		name: req.body.name,
+		games: JSON.stringify(req.app.locals.games)});
 });
 
 module.exports = router;
