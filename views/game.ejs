@@ -5,24 +5,32 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="js/Game.js"></script>
     <script>
     var socket = io();
     var name = '<%= name %>';
     var game = '<%= game %>';
     
-    socket.emit('joingame', game);
+    socket.emit('join_game', game, name);
     
-    socket.on('enemyclick', function (row, col) {
-    	console.log('Row:', row, 'Col:', col);
-    })
+    socket.on('game_joined', function (name) {
+    	$('#opponent').html('Your opponent: ' + name);
+    	socket.emit('start_game', game);
+    });
+    
+    socket.on('game_state', function(state) {
+    	if (state === 'init') {
+    		createGameBoard();
+    	}
+    });
+    
     </script>
     
-    <script src="js/Game.js"></script>
+    
   </head>
   <body align="center">
     <h1>Battleship</h1>
-    <h3>Playing against: <%= game %></h3>
+    <h3><div id="opponent">Waiting for Opponent</div></h3>
     <div id="board"></div>
-    
   </body>
 </html>

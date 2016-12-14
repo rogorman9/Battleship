@@ -8,7 +8,7 @@
     <script>
     var socket = io();
     
-    socket.on('updategames', function (games) {
+    socket.on('update_games', function (games) {
         $('#games').empty();
         $.each(games, function (key, value) {
         	if (value < 2) {

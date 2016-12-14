@@ -8,7 +8,16 @@ var $square = $("<div />", {
 });
 
 $(function () {
-    //add columns to the the temp row object
+	
+    $('.square').click(function () {
+    	var $this = $(this);
+    	var row = $this.parent().attr('row');
+    	var col = $this.attr('col');
+    });
+});
+
+function createGameBoard() {
+	//add columns to the the temp row object
     for (var i = 0; i < columns; i++) {
     	$cell = $square.clone();
     	$cell.attr('col', i);
@@ -18,14 +27,8 @@ $(function () {
     for (var i = 0; i < rows; i++) {
     	$r = $row.clone();
     	$r.attr('row', i);
-        $("#board").append($r);
+        $('#board').append($r);
     }
     
-    $('.square').click(function () {
-    	var $this = $(this);
-    	var row = $this.parent().attr('row');
-    	var col = $this.attr('col');
-    	$(this).css('background', '#FF0000');
-    	socket.emit('click', game, row, col);
-    });
-});
+    $('board').append($('<br>'));
+}

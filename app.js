@@ -72,9 +72,7 @@ app.use(function (err, req, res, next) {
 io.on('connection', function (socket) {
 	console.log('a user connected');
 	
-	socket.on('joingame', function (game) {
-		console.log('joingame');
-		
+	socket.on('join_game', function (game, name) {
 		if (app.locals.games.hasOwnProperty(game)) {
 			app.locals.games[game]++;
 		} else {
@@ -82,20 +80,24 @@ io.on('connection', function (socket) {
 		}
 		
 		socket.join(game);
-		socket.emit('updategames', app.locals.games);
+		socket.emit('update_games', app.locals.games);
+		socket.broadcast.to(game).emit('game_joined', name);
 	});
+	
+	socket.on('start_game', function (game) {
+		socket.to(game).emit('game_state', 'init');
+	})
+	
 	
 	socket.on('disconnect', function () {
 		console.log('disconnect');
 		if (app.locals.games[socket.game] < 2) {
 			delete app.locals.games[socket.game];
 		}
+		socket.leave(socket.game);
 		console.log('user disconnected');
 	});
 	
-	socket.on('click', function(game, row, col) {
-		socket.broadcast.to(game).emit('enemyclick', row, col);
-	});
 });
 
 //Start server
