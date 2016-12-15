@@ -77,20 +77,6 @@ GameController.prototype.initialize = function () {
     $cells.addClass('player-cell');
     $('#playerBoard').replaceWith($playerBoard);
     
-    
-    // Set up board cell click listeners
-    $('.enemy-cell').click(function () {
-    	var $this = $(this);
-    	var row = $this.parent().attr('row');
-    	var col = $this.attr('col');
-    });
-    
-    $('.player-cell').click(function () {
-    	var $this = $(this);
-    	var row = $this.parent().attr('row');
-    	var col = $this.attr('col');
-    });
-    
     socket.emit('deploy', this.game);
 };
 
