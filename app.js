@@ -70,10 +70,7 @@ app.use(function (err, req, res, next) {
 });
 
 io.on('connection', function (socket) {
-	console.log('a user connected');
-	
 	socket.on('join_game', function (game, name) {
-		console.log('join_game', game, name);
 		socket.join(game);
 		socket.game = game;
 		if (app.locals.games.hasOwnProperty(game)) {
@@ -87,48 +84,44 @@ io.on('connection', function (socket) {
 	});
 	
 	socket.on('start_game', function (game) {
-		console.log('start_game', game);
 		socket.broadcast.to(game).emit('game_state', 'init');
 	});
 	
 	socket.on('deploy', function (game) {
-		console.log('deploy');
 		socket.broadcast.to(game).emit('game_state', 'deploy');
 	});
 	
 	socket.on('deployed', function (game) {
-		console.log('deployed');
 		socket.broadcast.to(game).emit('ready');
 	});
 	
 	socket.on('engage', function (game) {
-		console.log('engage');
 		io.to(game).emit('game_state', 'engage');
 	});
 	
 	socket.on('fire', function (game, cell) {
-		console.log('fire', cell);
 		socket.broadcast.to(game).emit('fired', cell);
 	});
 	
 	socket.on('hit', function (game, cell) {
-		console.log('hit', cell);
 		socket.broadcast.to(game).emit('was_hit', cell);
 	});
 	
 	socket.on('miss', function (game, cell) {
-		console.log('miss', cell);
 		socket.broadcast.to(game).emit('missed', cell);
 	});
 	
-	socket.on('sink', function (game, cell, type) {
-		console.log('sink', type);
-		socket.broadcast.to(game).emit('sunk', type)
+	socket.on('sink', function (game, type) {
+		socket.broadcast.to(game).emit('sunk', type);
+	});
+	
+	socket.on('game_over', function (game) {
+		socket.broadcast.to(game).emit('game_state', 'win');
+		socket.emit('game_state', 'lose');
 	});
 	
 	socket.on('disconnect', function () {
 		delete app.locals.games[socket.game];
-		console.log('user disconnected');
 	});
 	
 });

@@ -141,10 +141,10 @@ GameController.prototype.deploy = function () {
 			var thisRow = parseInt($(this).parent().attr('row'));
 			var thisCol = parseInt($(this).attr('col'));
 			cells.push(thisRow + '-' + thisCol);
-			legalShip = legalShip && isOpenAndLegal(thisRow, thisCol, controller);
-		})
+			legalShip = legalShip && isOpen(thisRow, thisCol);
+		});
 		
-		if (legalShip) {
+		if (legalShip && cells.length === size) {
 			$shipCells.addClass('ship');
 			var ship = new Ship(shipTypes[controller.player.fleet.length]);
 			ship.cells = cells;
@@ -172,9 +172,7 @@ GameController.prototype.engage = function () {
 	
 	// Set up click handlers
 	$('.enemy-cell').click(function () {
-		console.log('click');
 		if (controller.myTurn) {
-			console.log('my turn');
 			var row = $(this).parent().attr('row');
 			var col = $(this).attr('col');
 			var cell = row + '-' + col;
@@ -217,7 +215,10 @@ GameController.prototype.checkHit = function (cell) {
 			this.socket.emit('hit', this.game, cell);
 			if(fleet[i].hits.length === fleet[i].cells.length) {
 				fleet[i].dead = true;
-				this.socket.emit('sink', this.game, fleet[i].type);
+ 				this.socket.emit('sink', this.game, fleet[i].type);
+				if (allSunk(fleet)) {
+					this.socket.emit('game_over', game);
+				}
 			}
 			this.myTurn = true;
 			return;
@@ -263,6 +264,10 @@ GameController.prototype.enemyMiss = function (cell) {
 	$cell.addClass('miss');
 };
 
+GameController.prototype.gameOver = function () {
+	$(document).add('*').off();
+}
+
 var getShipCells = function (startRow, startCol, size, orientation) {
 	return $('.player-cell').filter(function () {
 		// Get row and col as ints
@@ -276,12 +281,7 @@ var getShipCells = function (startRow, startCol, size, orientation) {
 	});
 }
 
-var isOpenAndLegal = function (row, col, controller) {
-	// Check for out of bounds
-	if (row < 1 || row > controller.rows || col < 1 || col > controller.cols) {
-		return false;
-	}
-	
+var isOpen = function (row, col) {
 	// Check for ship intersect
 	var fleet = controller.player.fleet;
 	for (var i = 0; i < fleet.length; i++) {
@@ -291,6 +291,16 @@ var isOpenAndLegal = function (row, col, controller) {
 	}
 	
 	return true;
+}
+
+var allSunk = function (fleet) {
+	var sunk = true;
+	
+	for (var i = 0; i < fleet.length; i++) {
+		sunk = sunk && fleet[i].dead;
+	}
+	
+	return sunk;
 }
 
 

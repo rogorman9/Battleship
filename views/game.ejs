@@ -15,7 +15,6 @@
     socket.emit('join_game', game, player);
     
     socket.on('game_joined', function (name) {
-    	console.log('game_joined', name);
     	if (name === player) {
     		$('#opponent').html('Your opponent: ' + game);
     	} else {
@@ -25,7 +24,6 @@
     });
     
     socket.on('game_state', function (state) {
-    	console.log('game_state', state);
     	switch (state) {
     	case 'init':
     		controller = new GameController(10, 10, socket, game, player);
@@ -33,13 +31,24 @@
         break;
     	case 'deploy':
     		controller.deploy('horizontal');
+    		$('#message').html('Deploy your ships!<br> Use spacebar to change ship orientation.')
     		break;
     	case 'engage':
     		controller.myTurn = player === game; // Player who created the room goes first
+    		if (controller.myTurn) {
+    			$('#message').html('Your turn.')
+    		} else {
+    			$('#message').html('Opponent\'s turn.')
+    		}
     		controller.engage();
     		break;
-    	case 'end':
-    		
+    	case 'win':
+    		$('#message').html('You win!');
+    		controller.gameOver();
+    		break;
+    	case 'lose':
+    		$('#message').html('You lose!');
+    		controller.gameOver();
     		break;
     	}
     });
@@ -50,14 +59,21 @@
     
     socket.on('fired', function (cell) {
     	controller.checkHit(cell);
+    	$('#message').html('Your turn.')
     });
     
     socket.on('was_hit', function (cell) {
     	controller.enemyHit(cell);
+    	$('#message').html('Hit!<br>Opponent\'s turn.')
     });
     
     socket.on('missed', function (cell) {
     	controller.enemyMiss(cell);
+    	$('#message').html('Miss!<br>Opponent\'s turn.')
+    });
+    
+    socket.on('sunk', function (type) {
+    	$('#message').html('Sunk enemy ' + type + '!<br>Opponent\'s turn.');
     });
     
     </script>
@@ -67,6 +83,7 @@
   <body align="center">
     <h1>Battleship</h1>
     <h3><div id="opponent">Waiting for Opponent</div></h3>
+    <div id="message"></div>
     <div class="board" id="enemyBoard"></div>
     <div class="board" id="playerBoard"></div>
   </body>
