@@ -5,23 +5,59 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/Game.js"></script>
+    <script src="js/GameController.js"></script>
     <script>
     var socket = io();
-    var name = '<%= name %>';
+    var player = '<%= name %>';
     var game = '<%= game %>';
+    var controller;
     
-    socket.emit('join_game', game, name);
+    socket.emit('join_game', game, player);
     
     socket.on('game_joined', function (name) {
-    	$('#opponent').html('Your opponent: ' + name);
+    	console.log('game_joined', name);
+    	if (name === player) {
+    		$('#opponent').html('Your opponent: ' + game);
+    	} else {
+    		$('#opponent').html('Your opponent: ' + name);
+    	}
     	socket.emit('start_game', game);
     });
     
-    socket.on('game_state', function(state) {
-    	if (state === 'init') {
-    		createGameBoard();
+    socket.on('game_state', function (state) {
+    	console.log('game_state', state);
+    	switch (state) {
+    	case 'init':
+    		controller = new GameController(10, 10, socket, game, player);
+        controller.initialize();
+        break;
+    	case 'deploy':
+    		controller.deploy('horizontal');
+    		break;
+    	case 'engage':
+    		controller.myTurn = player === game; // Player who created the room goes first
+    		controller.engage();
+    		break;
+    	case 'end':
+    		
+    		break;
     	}
+    });
+    
+    socket.on('ready', function () {
+    	controller.enemyReady = true;
+    });
+    
+    socket.on('fired', function (cell) {
+    	controller.checkHit(cell);
+    });
+    
+    socket.on('was_hit', function (cell) {
+    	controller.enemyHit(cell);
+    });
+    
+    socket.on('missed', function (cell) {
+    	controller.enemyMiss(cell);
     });
     
     </script>
@@ -31,6 +67,7 @@
   <body align="center">
     <h1>Battleship</h1>
     <h3><div id="opponent">Waiting for Opponent</div></h3>
-    <div id="board"></div>
+    <div class="board" id="enemyBoard"></div>
+    <div class="board" id="playerBoard"></div>
   </body>
 </html>

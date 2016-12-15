@@ -7,24 +7,46 @@ a {
   color: #00B7FF;
 }
 
-#board {
-    width: 300px;
-    height: 300px;
+.board {
+    width: 330px;
+    height: 330px;
     margin-top: 0px;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 50px;
+    outline: 1px solid;
 }
 .row {
-    width: 300px;
+    width: 330px;
     height: 30px;
     background: #313131;
 }
 .square {
     width: 30px;
-    height: 30px;
+    height: 26px;
     margin: 0px;
+    padding-top: 4px;
     outline: 1px solid;
     display: inline-block;
     float: left;
-    background: #00AAFF;
+    background: #0066CC;
+    color: #FFFFFF;
+    font-size: 20px;
+    text-shadow: 1px 1px #222222;
+}
+
+.ship, .ghost {
+    background: #999999;
+}
+
+.highlight {
+  background: #3399FF;
+}
+
+.hit {
+  background: #FF0000;
+}
+
+.miss {
+  background: #DDDDDD;
 }

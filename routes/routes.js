@@ -24,7 +24,8 @@ router.post('/lobby', function (req, res, next) {
 	req.session.name = req.body.name;
 	res.render('lobby', {
 		name: req.body.name,
-		games: JSON.stringify(req.app.locals.games)});
+		games: JSON.stringify(req.app.locals.games)
+	});
 });
 
 module.exports = router;

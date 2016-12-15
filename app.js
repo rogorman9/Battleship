@@ -73,28 +73,61 @@ io.on('connection', function (socket) {
 	console.log('a user connected');
 	
 	socket.on('join_game', function (game, name) {
+		console.log('join_game', game, name);
+		socket.join(game);
+		socket.game = game;
 		if (app.locals.games.hasOwnProperty(game)) {
 			app.locals.games[game]++;
+			io.to(game).emit('game_joined', name);
 		} else {
 			app.locals.games[game] = 1;
 		}
 		
-		socket.join(game);
-		socket.emit('update_games', app.locals.games);
-		socket.broadcast.to(game).emit('game_joined', name);
+		io.sockets.emit('update_games', app.locals.games);
 	});
 	
 	socket.on('start_game', function (game) {
-		socket.to(game).emit('game_state', 'init');
-	})
+		console.log('start_game', game);
+		socket.broadcast.to(game).emit('game_state', 'init');
+	});
 	
+	socket.on('deploy', function (game) {
+		console.log('deploy');
+		socket.broadcast.to(game).emit('game_state', 'deploy');
+	});
+	
+	socket.on('deployed', function (game) {
+		console.log('deployed');
+		socket.broadcast.to(game).emit('ready');
+	});
+	
+	socket.on('engage', function (game) {
+		console.log('engage');
+		io.to(game).emit('game_state', 'engage');
+	});
+	
+	socket.on('fire', function (game, cell) {
+		console.log('fire', cell);
+		socket.broadcast.to(game).emit('fired', cell);
+	});
+	
+	socket.on('hit', function (game, cell) {
+		console.log('hit', cell);
+		socket.broadcast.to(game).emit('was_hit', cell);
+	});
+	
+	socket.on('miss', function (game, cell) {
+		console.log('miss', cell);
+		socket.broadcast.to(game).emit('missed', cell);
+	});
+	
+	socket.on('sink', function (game, cell, type) {
+		console.log('sink', type);
+		socket.broadcast.to(game).emit('sunk', type)
+	});
 	
 	socket.on('disconnect', function () {
-		console.log('disconnect');
-		if (app.locals.games[socket.game] < 2) {
-			delete app.locals.games[socket.game];
-		}
-		socket.leave(socket.game);
+		delete app.locals.games[socket.game];
 		console.log('user disconnected');
 	});
 	
