@@ -34,7 +34,7 @@ app.use(session({
 }));
 
 app.locals.games = {};
-
+app.locals.users = [];
 
 app.use('/', routes);
 
@@ -73,6 +73,7 @@ io.on('connection', function (socket) {
 	socket.on('join_game', function (game, name) {
 		socket.join(game);
 		socket.game = game;
+		socket.name = name;
 		if (app.locals.games.hasOwnProperty(game)) {
 			app.locals.games[game]++;
 			io.to(game).emit('game_joined', name);
@@ -122,6 +123,11 @@ io.on('connection', function (socket) {
 	
 	socket.on('disconnect', function () {
 		delete app.locals.games[socket.game];
+		var index = app.locals.users.indexOf(socket.name);
+		if (index > -1) {
+			app.locals.users.splice(index, 1);
+		}
+		io.sockets.emit('update_games', app.locals.games);
 	});
 	
 });

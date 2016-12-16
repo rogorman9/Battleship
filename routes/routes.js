@@ -3,7 +3,9 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	res.render('index');
+	var message = req.session.message;
+	delete req.session.message;
+	res.render('index', {message: message});
 });
 
 /* POST game page. */
@@ -21,11 +23,18 @@ router.post('/game', function(req, res, next) {
 
 /* POST lobby page. */
 router.post('/lobby', function (req, res, next) {
-	req.session.name = req.body.name;
-	res.render('lobby', {
-		name: req.body.name,
-		games: JSON.stringify(req.app.locals.games)
-	});
+	if (req.app.locals.users.indexOf(req.body.name) > -1) {
+		req.session.message = 'Error: name already taken. Please choose another.';
+		res.redirect('/');
+	} else {
+		req.session.name = req.body.name;
+		req.app.locals.users.push(req.body.name);
+		res.render('lobby', {
+			name: req.body.name,
+			games: JSON.stringify(req.app.locals.games)
+		});
+	}
+	
 });
 
 module.exports = router;

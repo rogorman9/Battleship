@@ -51,6 +51,7 @@ GameController.prototype.initialize = function () {
 	}
 	
 	// Create enemy board
+	$('#enemyBoard').addClass('board');
 	$('#enemyBoard').append($labelRow.clone());
 	
     for (var i = 1; i <= this.cols; i++) {
@@ -207,7 +208,7 @@ GameController.prototype.checkHit = function (cell) {
 				}
 			}
 			this.myTurn = true;
-			return;
+			return true;
 		}
 	}
 	
@@ -224,6 +225,7 @@ GameController.prototype.checkHit = function (cell) {
 	
 	this.socket.emit('miss', this.game, cell);
 	this.myTurn = true;
+	return false;
 }
 
 GameController.prototype.enemyHit = function (cell) {

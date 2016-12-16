@@ -19,7 +19,12 @@ a {
 #message {
   color: green;
   font-size: 18px;
-  height: 50px;
+  height: 60px;
+}
+
+.alert {
+  color: red;
+  height: 30px;
 }
 
 .row {

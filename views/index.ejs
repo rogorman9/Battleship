@@ -8,7 +8,13 @@
   
   <body align="center">
     <h1>Battleship</h1>
-    <br>
+    <div class="alert">
+	    <% if (message != 'undefined') { %>
+	     <h3><%= message %></h3>
+	    <% } %>
+    </div>
+    
+    
     <form action="/lobby" method="post">
     <input type="text" name="name" placeholder="Enter Name" required>
     <input type="submit" value="Play">

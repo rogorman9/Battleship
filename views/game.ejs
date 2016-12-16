@@ -43,11 +43,11 @@
     		controller.engage();
     		break;
     	case 'win':
-    		$('#message').html('You win!');
+    		$('#message').html('<h2>You win!</h2>');
     		controller.gameOver();
     		break;
     	case 'lose':
-    		$('#message').html('You lose!');
+    		$('#message').html('<h2>You lose!</h2>');
     		controller.gameOver();
     		break;
     	}
@@ -58,8 +58,11 @@
     });
     
     socket.on('fired', function (cell) {
-    	controller.checkHit(cell);
-    	$('#message').html('Your turn.')
+    	if (controller.checkHit(cell)) {
+    		$('#message').html('Opponent scored a hit!<br>Your turn.')
+    	} else {
+    		$('#message').html('Opponent missed!<br>Your turn.')
+    	}
     });
     
     socket.on('was_hit', function (cell) {
@@ -82,9 +85,9 @@
   </head>
   <body align="center">
     <h1>Battleship</h1>
-    <h3><div id="opponent">Waiting for Opponent</div></h3>
+    <h3><div id="opponent">Waiting for Opponent...</div></h3>
     <div id="message"></div>
-    <div class="board" id="enemyBoard"></div>
-    <div class="board" id="playerBoard"></div>
+    <div id="enemyBoard"></div>
+    <div id="playerBoard"></div>
   </body>
 </html>
